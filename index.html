@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Axis-aligned objects</title>
+	<meta charset="utf-8">
+	<meta name="description" content="Collision detection and resolution between axis-aligned objects. Namely betwen cylinders, spheres and boxes.">
+	<style type="text/css">
+		
+	body {
+		margin: 0;
+		overflow: hidden;
+	}
+
+	#canvas {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+	}
+
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<script type="text/javascript" src="https://threejs.org/build/three.min.js"></script>
+	<script type="text/javascript" src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+	<script type="text/javascript" src="AA.js"></script>
+	<script type="text/javascript">
+	
+	var renderer;
+	var scene, camera, controls;
+
+	var box, cylinder, sphere;
+
+	var boxWidth = 1;
+	var boxHeight = 1;
+	var boxDepth = 2;
+
+	var box2Width = 1;
+	var box2Height = 1;
+	var box2Depth = 1;
+
+	var sphereRadius = 1.5;
+
+	var cylinderRadius = 0.7;
+	var cylinderHeight = 4;
+
+	var boxPosition = new THREE.Vector3();
+	var box2Position = new THREE.Vector3( 2.8, 0.5, 6 );
+	var spherePosition = new THREE.Vector3( 2, 0.8, 0 );
+	var cylinderPosition = new THREE.Vector3( 2, 2, 4 ); 
+
+	function init() {
+
+		renderer = new THREE.WebGLRenderer( {
+			alpha: true,
+			antialias: true,
+			canvas: document.getElementById( 'canvas' )
+		} );
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setPixelRatio( window.devicePixelRatio );
+		renderer.setClearColor( 0x333333 );
+
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+		var material = new THREE.MeshNormalMaterial();
+
+		var boxGeometry = new THREE.BoxBufferGeometry( 1, 1, 1 );
+		box = new THREE.Mesh( boxGeometry, material );
+		box.scale.set( boxWidth, boxHeight, boxDepth );
+		box.position.copy( boxPosition );
+		scene.add( box );
+
+		var sphereGeometry = new THREE.SphereBufferGeometry( sphereRadius, 20, 20 );
+		sphere = new THREE.Mesh( sphereGeometry, material );
+		sphere.position.copy( spherePosition );
+		scene.add( sphere );
+
+		var cylinderGeometry = new THREE.CylinderBufferGeometry( cylinderRadius, cylinderRadius, cylinderHeight, 20 );
+		cylinder = new THREE.Mesh( cylinderGeometry, material );
+		cylinder.position.copy( cylinderPosition );
+		scene.add( cylinder );
+
+		box2 = new THREE.Mesh( boxGeometry, material );
+		box2.scale.set( box2Width, box2Height, box2Depth );
+		box2.position.copy( box2Position );
+		scene.add( box2 );
+
+		camera.position.set( 10.0, 7.0, 5.0 );
+		camera.lookAt( 0, 0, 0 );
+
+		window.addEventListener( 'resize', onResize, false );
+
+		window.requestAnimationFrame( animate );
+
+	}
+
+	function onResize() {
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+	}
+
+	function animate( t ) {
+
+		sphere.position.x -= Math.sin( t / 800 ) * 0.1;
+		sphere.position.y += ( spherePosition.y - sphere.position.y ) * 0.1;
+
+		var intersection = sphereIntersectsBox(
+
+			sphere.position.x,
+			sphere.position.y,
+			sphere.position.z,
+			sphereRadius,
+			box.position.x - boxWidth / 2,
+			box.position.y - boxHeight / 2,
+			box.position.z - boxDepth / 2,
+			box.position.x + boxWidth / 2,
+			box.position.y + boxHeight / 2,
+			box.position.z + boxDepth / 2,
+
+		);
+
+		
+
+		if ( intersection ) {
+
+			sphere.position.x += intersection.mtvX * intersection.minOverlap / 2;
+			sphere.position.y += intersection.mtvY * intersection.minOverlap / 2;
+			sphere.position.z += intersection.mtvZ * intersection.minOverlap / 2;
+
+			box.position.x -= intersection.mtvX * intersection.minOverlap / 2;
+			box.position.y -= intersection.mtvY * intersection.minOverlap / 2;
+			box.position.z -= intersection.mtvZ * intersection.minOverlap / 2;
+
+		} else {
+
+			box.position.lerp( boxPosition, 0.1 );
+
+		}
+
+		box2.position.z -= Math.sin( t / 800 ) * 0.1;
+		
+
+		var intersection = boxIntersectsCylinder(
+
+			box2.position.x - box2Width / 2,
+			box2.position.y - box2Height / 2,
+			box2.position.z - box2Depth / 2,
+			box2.position.x + box2Width / 2,
+			box2.position.y + box2Height / 2,
+			box2.position.z + box2Depth / 2,
+			cylinder.position.x,
+			cylinder.position.y,
+			cylinder.position.z,
+			cylinderHeight,
+			cylinderRadius
+
+		);
+
+		if ( intersection ) {
+
+			box2.position.x += intersection.mtvX * intersection.minOverlap / 2;
+			box2.position.y += intersection.mtvY * intersection.minOverlap / 2;
+			box2.position.z += intersection.mtvZ * intersection.minOverlap / 2;
+			
+		} else {
+
+			box2.position.x += ( box2Position.x - box2.position.x ) * 0.1;
+
+		}
+
+		renderer.render( scene, camera );
+
+		window.requestAnimationFrame( animate );
+
+	}
+
+	init();
+
+	</script>
+</body>
+</html>
