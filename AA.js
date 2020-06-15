@@ -1,6 +1,5 @@
 
 
-
 function boxIntersectsBox( aminx, aminy, aminz, amaxx, amaxy, amaxz, bminx, bminy, bminz, bmaxx, bmaxy, bmaxz ) {
 
 	var overlapX = Math.min( amaxx, bmaxx ) - Math.max( aminx, bminx );
@@ -191,9 +190,13 @@ function sphereIntersectsCylinder( sx, sy, sz, sr, cx, cy, cz, ch, cr ) {
 
 	var newRadius;
 
+	var h1, h2;
+
 	if ( overlapY < sr ) {
 
-		newRadius = Math.sqrt( sr * sr - overlapY * overlapY );
+		h1 = sr - overlapY;
+
+		newRadius = Math.sqrt( sr * sr - h1 * h1 );
 
 	} else {
 
@@ -214,6 +217,16 @@ function sphereIntersectsCylinder( sx, sy, sz, sr, cx, cy, cz, ch, cr ) {
 	if ( overlapY < overlapXZ ) {
 
 		minOverlap = overlapY;
+		y = Math.sign( sy - cy );
+		x = 0;
+		z = 0;
+
+	} else if ( overlapY < sr ) {
+
+		var newerRadius = newRadius - overlapXZ;
+
+		h2 = Math.sqrt( sr * sr - newerRadius * newerRadius );
+		minOverlap = h2 - h1;
 
 		y = Math.sign( sy - cy );
 		x = 0;
