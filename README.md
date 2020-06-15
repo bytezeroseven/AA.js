@@ -28,7 +28,7 @@ The code provides functions like `shape1IntersectsShape2` to check if the shapes
 
 Note: As mentioned before, the mtv points in the direction of the first shape (in this case, sphere A). So for moving the other sphere apart we negate the minimum translation vector.
 
-## Documentation
+## Cheatsheet
 
 	boxIntersectsBox( aminx, aminy, aminz, amaxx, amaxy, amaxz, bminx, bminy, bminz, bmaxx, bmaxy, bmaxz )
 	boxIntersectsSphere( minx, miny, minz, maxx, maxy, maxz, sx, sy, sz, sr );
@@ -41,3 +41,8 @@ Note: As mentioned before, the mtv points in the direction of the first shape (i
 	cylinderIntersectsCylinder( ax, ay, az, ah, ar, bx, by, bz, bh, br )
 	cylinderIntersectsSphere( cx, cy, cz, ch, cr, sx, sy, sz, sr )
 	cylinderIntersectsBox( cx, cy, cz, ch, cr, minx, miny, minz, maxx, maxy, maxz )
+
+## TODO
+1. Cones.
+2. Cylinder and cones aligned to x and z axis.
+3. Code improvement and bundle everything in a module.
